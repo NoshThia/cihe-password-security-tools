@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PSMS{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700,800">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% if current_user.is_authenticated %}hold-transition sidebar-mini layout-fixed{% else %}hold-transition{% endif %}">
+
+{% if current_user.is_authenticated %}
+<div class="wrapper shieldx-app">
+
+    <aside class="main-sidebar shieldx-sidebar elevation-0">
+        <a href="{{ url_for('auth.dashboard_redirect') }}" class="brand-link shieldx-brand-link text-decoration-none">
+            <span class="shieldx-brand-mark">
+                <i class="fas fa-shield-halved"></i>
+            </span>
+            <span class="brand-text font-weight-light">
+                <strong>CIHE ShieldX</strong>
+            </span>
+        </a>
+
+        <div class="sidebar d-flex flex-column h-100">
+            <div class="shieldx-sidebar-main">
+                <nav class="mt-3">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+
+                        <li class="nav-header">OVERVIEW</li>
+
+                        {% if current_user.role == "admin" %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% elif current_user.role == "analyst" %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.dashboard') }}" class="nav-link {% if request.endpoint == 'analyst.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('user.dashboard') }}" class="nav-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-header">PASSWORD TOOLS</li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.saved_passwords') }}" class="nav-link {% if request.endpoint == 'user.saved_passwords' %}active{% endif %}">
+                                <i class="nav-icon fas fa-vault"></i>
+                                <p>Vault</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.generator') }}" class="nav-link {% if request.endpoint == 'user.generator' %}active{% endif %}">
+                                <i class="nav-icon fas fa-key"></i>
+                                <p>Password Generator</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.strength') }}" class="nav-link {% if request.endpoint == 'user.strength' %}active{% endif %}">
+                                <i class="nav-icon fas fa-user-shield"></i>
+                                <p>Password Strength Checker</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.checker') }}" class="nav-link {% if request.endpoint == 'user.checker' %}active{% endif %}">
+                                <i class="nav-icon fas fa-shield-alt"></i>
+                                <p>Breach Monitoring</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.attack_simulator') }}" class="nav-link {% if request.endpoint == 'user.attack_simulator' %}active{% endif %}">
+                                <i class="nav-icon fas fa-bolt"></i>
+                                <p>Attack Simulator</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.health_score') }}" class="nav-link {% if request.endpoint == 'user.health_score' %}active{% endif %}">
+                                <i class="nav-icon fas fa-heart-pulse"></i>
+                                <p>Cyber Health Score</p>
+                            </a>
+                        </li>
+
+                        {% if current_user.role == "admin" %}
+                            <li class="nav-header">ADMINISTRATION</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.users') }}" class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-users"></i>
+                                    <p>Manage Users</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.policies') }}" class="nav-link {% if request.endpoint == 'admin.policies' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-gear"></i>
+                                    <p>Policies</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-header">REPORTING</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.logs') }}" class="nav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-clipboard-list"></i>
+                                    <p>Audit Logs</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.reports') }}" class="nav-link {% if request.endpoint == 'analyst.reports' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-file-shield"></i>
+                                    <p>Security Reports</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.dashboard') }}" class="nav-link {% if request.endpoint == 'analyst.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-chart-pie"></i>
+                                    <p>Analyst Dashboard</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if current_user.role == "analyst" %}
+                            <li class="nav-header">REPORTING</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.reports') }}" class="nav-link {% if request.endpoint == 'analyst.reports' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-file-lines"></i>
+                                    <p>Security Reports</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="shieldx-sidebar-bottom">
+                <div class="shieldx-side-user">
+                    <div class="shieldx-side-user-avatar">
+                        {{ current_user.username[:1]|upper }}
+                    </div>
+                    <div class="shieldx-side-user-meta">
+                        <div class="shieldx-side-user-name">{{ current_user.username }}</div>
+                        <div class="shieldx-side-user-role">{{ current_user.role|upper }}</div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('auth.logout') }}" class="shieldx-side-logout">
+                    Log Out
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="content-wrapper shieldx-content-wrapper">
+        <nav class="main-header navbar navbar-expand border-0 shieldx-topbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link shieldx-icon-btn" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="shieldx-topbar-search-wrap">
+                <div class="shieldx-topbar-search">
+                    <i class="fas fa-search shieldx-topbar-search-icon"></i>
+                    <input type="text" class="shieldx-topbar-search-input" placeholder="Search....">
+                </div>
+            </div>
+
+            <div class="shieldx-topbar-actions">
+                <button class="shieldx-top-icon" type="button">
+                    <i class="fas fa-bell"></i>
+                </button>
+
+                <div class="dropdown">
+                    <button class="shieldx-top-profile shieldx-profile-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="shieldx-top-profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="shieldx-top-profile-name">{{ current_user.username }}</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shieldx-dropdown-menu">
+                        <li>
+                            <div class="shieldx-dropdown-user">
+                                <div class="shieldx-dropdown-user-name">{{ current_user.username }}</div>
+                                <div class="shieldx-dropdown-user-role">{{ current_user.role|upper }}</div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item shieldx-dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section class="content pt-4 pb-4">
+            <div class="container-fluid">
+
+{% else %}
+
+<div class="auth-page-wrapper">
+    <div class="auth-page-inner">
+
+{% endif %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'warning' if category == 'message' else category }} alert-dismissible fade show shieldx-alert {% if current_user.is_authenticated %}mb-4{% else %}mb-3{% endif %}" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+
+            </div>
+        </section>
+    </div>
+</div>
+
+{% else %}
+
+    </div>
+</div>
+
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+<!-- ═══════════════════════════════════════════════════
+     SENTINEL AI — Floating Chat Widget
+═══════════════════════════════════════════════════ -->
+<style>
+  #s-fab {
+    position:fixed; bottom:26px; right:26px;
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,#1a2332,#2c5364);
+    color:#fff; border:none; font-size:1.2rem;
+    cursor:pointer; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 16px rgba(0,0,0,0.28);
+    transition:transform .2s,box-shadow .2s;
+  }
+  #s-fab:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(0,0,0,0.35);}
+  #s-fab .s-ndot{
+    position:absolute; top:3px; right:3px;
+    width:11px; height:11px; background:#28a745;
+    border-radius:50%; border:2px solid #fff;
+  }
+  #s-popup{
+    position:fixed; bottom:90px; right:26px;
+    width:318px; height:435px;
+    background:#fff; border-radius:16px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.16);
+    border:1px solid #e3e8ef; z-index:9998;
+    display:none; flex-direction:column; overflow:hidden;
+    animation:sPop .2s ease;
+  }
+  #s-popup.open{display:flex;}
+  @keyframes sPop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+  .s-hdr{
+    background:linear-gradient(135deg,#1a2332,#2c5364);
+    padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0;
+  }
+  .s-av{
+    width:36px; height:36px; border-radius:50%;
+    background:rgba(255,255,255,.13); border:1.5px solid rgba(255,255,255,.22);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:.95rem; flex-shrink:0;
+  }
+  .s-online{display:inline-block;width:7px;height:7px;background:#28a745;border-radius:50%;margin-right:4px;animation:bS 2s infinite;}
+  @keyframes bS{0%,100%{opacity:1}50%{opacity:.3}}
+  .s-xbtn{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.65);font-size:1rem;cursor:pointer;padding:2px 7px;border-radius:5px;}
+  .s-xbtn:hover{background:rgba(255,255,255,.13);color:#fff;}
+
+  .s-msgs{
+    flex:1; overflow-y:auto; padding:12px;
+    background:#f8f9fb; display:flex; flex-direction:column; gap:10px;
+  }
+  .s-msgs::-webkit-scrollbar{width:3px;}
+  .s-msgs::-webkit-scrollbar-thumb{background:#ced4da;border-radius:3px;}
+
+  .s-m{display:flex;gap:8px;max-width:88%;animation:mIn .18s ease;}
+  @keyframes mIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .s-m.u{align-self:flex-end;flex-direction:row-reverse;}
+  .s-m.b{align-self:flex-start;}
+  .s-mav{
+    width:27px;height:27px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:2px;
+  }
+  .s-m.b .s-mav{background:#1a2332;color:#fff;}
+  .s-m.u .s-mav{background:#dce8ff;color:#1a73e8;}
+  .s-bbl{padding:8px 12px;border-radius:12px;font-size:.8rem;line-height:1.55;word-break:break-word;}
+  .s-m.b .s-bbl{background:#fff;border:1px solid #e3e8ef;border-bottom-left-radius:3px;color:#212529;}
+  .s-m.u .s-bbl{background:#1a73e8;color:#fff;border-bottom-right-radius:3px;}
+  .s-bbl strong{font-weight:600;}
+  .s-bbl ul{margin:4px 0 0;padding-left:15px;}
+  .s-bbl li{margin-bottom:2px;}
+
+  .s-typing{display:flex;gap:3px;align-items:center;padding:8px 12px;background:#fff;border:1px solid #e3e8ef;border-radius:12px;border-bottom-left-radius:3px;width:fit-content;}
+  .s-td{width:6px;height:6px;background:#adb5bd;border-radius:50%;animation:st 1.2s infinite;}
+  .s-td:nth-child(2){animation-delay:.2s}.s-td:nth-child(3){animation-delay:.4s}
+  @keyframes st{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+
+  .s-chips{display:flex;flex-wrap:wrap;gap:5px;padding:8px 12px 4px;}
+  .s-chip{background:#f0f4ff;border:1px solid #ccd9ff;color:#1a73e8;border-radius:14px;padding:3px 10px;font-size:.72rem;cursor:pointer;transition:background .15s;white-space:nowrap;}
+  .s-chip:hover{background:#dce8ff;}
+
+  .s-ftr{padding:10px 12px;background:#fff;border-top:1px solid #e3e8ef;flex-shrink:0;}
+  .s-row{display:flex;gap:7px;align-items:flex-end;}
+  #s-inp{
+    flex:1;border:1.5px solid #dee2e6;border-radius:8px;
+    padding:7px 11px;font-size:.8rem;resize:none;max-height:70px;
+    outline:none;line-height:1.4;font-family:inherit;transition:border-color .2s;
+  }
+  #s-inp:focus{border-color:#1a73e8;}
+  #s-btn{
+    width:34px;height:34px;border-radius:50%;background:#1a73e8;
+    border:none;color:#fff;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;flex-shrink:0;transition:background .15s,transform .1s;font-size:.75rem;
+  }
+  #s-btn:hover{background:#1558b0;}
+  #s-btn:active{transform:scale(.92);}
+  #s-btn:disabled{background:#adb5bd;cursor:not-allowed;}
+</style>
+
+<!-- FAB Button -->
+<button id="s-fab" onclick="sToggle()" title="Ask SENTINEL AI">
+  <i class="fas fa-robot"></i>
+  <span class="s-ndot"></span>
+</button>
+
+<!-- Popup -->
+<div id="s-popup">
+  <div class="s-hdr">
+    <div class="s-av"><i class="fas fa-robot"></i></div>
+    <div>
+      <div style="color:#fff;font-weight:700;font-size:.88rem;line-height:1.2;">SENTINEL AI</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.7rem;"><span class="s-online"></span>Powered by Gemini</div>
+    </div>
+    <button class="s-xbtn" onclick="sToggle()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="s-msgs" id="s-msgs">
+    <div class="s-m b">
+      <div class="s-mav"><i class="fas fa-robot" style="font-size:.6rem;"></i></div>
+      <div class="s-bbl">
+        Hi <strong>{{ current_user.username }}</strong>! I'm <strong>SENTINEL</strong>. 🔐<br>
+        Ask me about any feature or cybersecurity question.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-chips" id="s-chips">
+    <span class="s-chip" onclick="sQ('What tools does this app have?')">🛠 All tools</span>
+    <span class="s-chip" onclick="sQ('How does Hashcat work here?')">⚡ Hashcat</span>
+    <span class="s-chip" onclick="sQ('What is my Cyber Health Score?')">❤️ Health Score</span>
+    <span class="s-chip" onclick="sQ('How does the breach checker work?')">🔍 HIBP</span>
+  </div>
+
+  <div class="s-ftr">
+    <div class="s-row">
+      <textarea id="s-inp" rows="1" placeholder="Ask a question..."></textarea>
+      <button id="s-btn" onclick="sSend()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let sHist=[], sOpen=false;
+
+  function sToggle(){
+    sOpen=!sOpen;
+    document.getElementById('s-popup').classList.toggle('open',sOpen);
+    const fab=document.getElementById('s-fab');
+    fab.innerHTML=sOpen
+      ?'<i class="fas fa-times"></i>'
+      :'<i class="fas fa-robot"></i><span class="s-ndot"></span>';
+    if(sOpen) document.getElementById('s-inp').focus();
+  }
+
+  function sFmt(t){
+    return t
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/(?:^|\n)[•\-]\s(.+)/g,(_,i)=>`<li>${i}</li>`)
+      .replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>')
+      .replace(/\n/g,'<br>');
+  }
+
+  function sApp(role,text){
+    const box=document.getElementById('s-msgs');
+    const d=document.createElement('div');
+    d.className=`s-m ${role==='user'?'u':'b'}`;
+    const av=role==='user'
+      ?`<span>{{ current_user.username[:1]|upper }}</span>`
+      :`<i class="fas fa-robot" style="font-size:.6rem;"></i>`;
+    d.innerHTML=`<div class="s-mav">${av}</div><div class="s-bbl">${sFmt(text)}</div>`;
+    box.appendChild(d);
+    box.scrollTop=box.scrollHeight;
+  }
+
+  function sShowTyping(){
+    const box=document.getElementById('s-msgs');
+    const d=document.createElement('div');
+    d.className='s-m b';d.id='s-ty';
+    d.innerHTML=`<div class="s-mav"><i class="fas fa-robot" style="font-size:.6rem;"></i></div>
+      <div class="s-typing"><div class="s-td"></div><div class="s-td"></div><div class="s-td"></div></div>`;
+    box.appendChild(d);box.scrollTop=box.scrollHeight;
+  }
+
+  async function sSend(){
+    const inp=document.getElementById('s-inp');
+    const text=inp.value.trim();
+    if(!text)return;
+    document.getElementById('s-chips').style.display='none';
+    sApp('user',text);
+    sHist.push({role:'user',content:text});
+    inp.value='';inp.style.height='auto';
+    document.getElementById('s-btn').disabled=true;
+    sShowTyping();
+    try{
+      const res=await fetch('/user/chat-assistant/message',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({history:sHist.slice(-10)})
+      });
+      const data=await res.json();
+      document.getElementById('s-ty')?.remove();
+      const reply=data.reply||'Sorry, I could not process that.';
+      sHist.push({role:'assistant',content:reply});
+      sApp('bot',reply);
+    }catch(e){
+      document.getElementById('s-ty')?.remove();
+      sApp('bot','Connection error. Please try again.');
+    }
+    document.getElementById('s-btn').disabled=false;
+    inp.focus();
+  }
+
+  function sQ(t){document.getElementById('s-inp').value=t;sSend();}
+
+  document.getElementById('s-inp').addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sSend();}
+  });
+  document.getElementById('s-inp').addEventListener('input',function(){
+    this.style.height='auto';
+    this.style.height=Math.min(this.scrollHeight,70)+'px';
+  });
+</script>
+{% endif %}
+</body>
+</html>

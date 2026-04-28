@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard | CIHE ShieldX{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Security overview, password health, and action-based risk review{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <div class="shieldx-kpi-strip">
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon blue">
+                <i class="fas fa-vault"></i>
+            </div>
+            <div>
+                <div class="shieldx-kpi-value">{{ total_items }}</div>
+                <div class="shieldx-kpi-subtitle">Total Items</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon red">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ weak_passwords }}</div>
+                    <div class="shieldx-kpi-title" style="color:#ef8b92;">At Risk</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">Weak or Reused Passwords</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon green">
+                <i class="fas fa-shield-check"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ secure_passwords }}</div>
+                    <div class="shieldx-kpi-title" style="color:#8ddc9e;">Secure</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">Secure Vault Items</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon alert">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ compromised_passwords }}</div>
+                    <div class="shieldx-kpi-title" style="color:#ef8b92;">Reused</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">Reuse Detected</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <h3 class="shieldx-card-heading mb-3">Security Health</h3>
+
+                <div class="shieldx-gauge-wrap">
+                    <div class="shieldx-gauge">
+                        <div class="shieldx-gauge-arc"></div>
+                        <div class="shieldx-gauge-center">
+                            <div class="shieldx-gauge-score">{{ risk_score }}</div>
+                            <div class="shieldx-gauge-label">{{ risk_label }}</div>
+                            <div class="shieldx-gauge-sub">Risk: {{ risk_score }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shieldx-divider"></div>
+
+                <ul class="shieldx-health-list">
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ weak_passwords }} Vulnerable Items</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ reused_passwords }} Reused Passwords</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ secure_passwords }} Secure Items</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>MFA Status: {% if mfa_enabled_count == 1 %}Enabled{% else %}Disabled{% endif %}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <h3 class="shieldx-card-heading mb-4">Watchtower Insight</h3>
+
+                <h4 style="font-size:1.05rem; font-weight:800; margin-bottom:10px; color:#f2f6ff;">
+                    Potential Security Risks Identified
+                </h4>
+
+                <p class="shieldx-card-copy mb-3" style="font-style: italic;">
+                    Risk analysis is based on your own saved vault items, weak password patterns, reuse detection, and MFA status.
+                </p>
+
+                <div class="shieldx-divider"></div>
+
+                <ul class="shieldx-list mb-4">
+                    <li><strong>{{ total_items }} saved password item(s)</strong> found in your vault</li>
+                    <li><strong>{{ weak_passwords }} weak or reused password(s)</strong> need review</li>
+                    <li><strong>{{ reused_passwords }} reused password(s)</strong> detected</li>
+                    <li><strong>{{ secure_passwords }} secure password item(s)</strong> currently detected</li>
+                </ul>
+
+                <a href="{{ url_for('user.saved_passwords') }}" class="btn btn-primary px-4">
+                    Review Vault
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Breach Monitoring</div>
+                <h4 class="shieldx-card-heading mb-2">Compromised Passwords</h4>
+                <p class="shieldx-card-copy mb-4">
+                    Check whether a password appears in blacklist data or known breach datasets.
+                </p>
+                <a href="{{ url_for('user.checker') }}" class="btn btn-outline-primary">
+                    Open Checker
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Vault</div>
+                <h4 class="shieldx-card-heading mb-2">Saved Passwords</h4>
+                <p class="shieldx-card-copy mb-4">
+                    Review saved credentials and identify reuse across vault entries.
+                </p>
+                <a href="{{ url_for('user.saved_passwords') }}" class="btn btn-outline-primary">
+                    Open Vault
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Strength Review</div>
+                <h4 class="shieldx-card-heading mb-2">Password Audit</h4>
+                <p class="shieldx-card-copy mb-4">
+                    Evaluate password strength, crack-time estimate, and policy compliance.
+                </p>
+                <a href="{{ url_for('user.strength') }}" class="btn btn-outline-primary">
+                    Open Audit
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Generator</div>
+                <h4 class="shieldx-card-heading mb-2">Create Passwords</h4>
+                <p class="shieldx-card-copy mb-4">
+                    Generate strong random or memorable passwords and save them securely.
+                </p>
+                <a href="{{ url_for('user.generator') }}" class="btn btn-outline-primary">
+                    Open Generator
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Attack Simulation</div>
+                <h4 class="shieldx-card-heading mb-2">Resistance Testing</h4>
+                <p class="shieldx-card-copy mb-4">
+                    Estimate how different attacker models would perform against a password.
+                </p>
+                <a href="{{ url_for('user.attack_simulator') }}" class="btn btn-outline-primary">
+                    Open Simulator
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Policy Snapshot</div>
+                <h4 class="shieldx-card-heading mb-2">Password Rules</h4>
+                <div class="shieldx-soft-panel mt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Minimum Length</span>
+                        <strong>{{ latest_policy.min_length if latest_policy else 8 }}+</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Uppercase</span>
+                        <strong>{% if latest_policy and latest_policy.require_upper %}Required{% else %}Optional{% endif %}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Digits</span>
+                        <strong>{% if latest_policy and latest_policy.require_digit %}Required{% else %}Optional{% endif %}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Symbols</span>
+                        <strong>{% if latest_policy and latest_policy.require_symbol %}Required{% else %}Optional{% endif %}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

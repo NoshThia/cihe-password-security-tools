@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Password Checker | CIHE ShieldX{% endblock %}
+{% block page_title %}Password Compromise Checker{% endblock %}
+{% block page_subtitle %}Check whether a password appears in local blacklist data and the HIBP breach dataset{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-circle-info me-2"></i>
+        AI-assisted password safety workflow combining blacklist review, breach exposure checks, and follow-up strength analysis.
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-4 mb-4">
+                        <div style="max-width: 700px;">
+                            <h2 class="fw-bold mb-2">Compromised Password Watch</h2>
+                            <p class="page-note mb-0">
+                                Check whether a password appears in your local blacklist data and in the
+                                Have I Been Pwned password breach dataset.
+                            </p>
+                        </div>
+
+                        {% if is_compromised is not none %}
+                            {% if is_compromised or (hibp_result.checked and hibp_result.found) %}
+                                <div class="shieldx-score-ring">
+                                    <div class="shieldx-score-ring-inner">
+                                        <div style="font-size: 1.7rem; font-weight: 800; line-height: 1;">RISK</div>
+                                        <div style="font-size: 0.82rem; color: #d1d5db; margin-top: 4px;">DETECTED</div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="shieldx-score-ring">
+                                    <div class="shieldx-score-ring-inner">
+                                        <div style="font-size: 1.7rem; font-weight: 800; line-height: 1;">CLEAR</div>
+                                        <div style="font-size: 0.82rem; color: #d1d5db; margin-top: 4px;">NO MATCH</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="shieldx-score-ring">
+                                <div class="shieldx-score-ring-inner">
+                                    <div style="font-size: 1.6rem; font-weight: 800; line-height: 1;">SCAN</div>
+                                    <div style="font-size: 0.82rem; color: #d1d5db; margin-top: 4px;">READY</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST" action="{{ url_for('user.checker') }}">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-lg-9">
+                                <label for="password" class="form-label fw-semibold">Enter Password</label>
+                                <input
+                                    type="password"
+                                    class="form-control form-control-lg"
+                                    id="password"
+                                    name="password"
+                                    value="{{ password_value }}"
+                                    placeholder="Enter password"
+                                    required
+                                >
+                                <small class="text-muted">
+                                    This checks your password against the local blacklist and the HIBP breach dataset.
+                                </small>
+                            </div>
+
+                            <div class="col-lg-3 d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-search me-2"></i>Check Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mt-4 d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('user.dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <a href="{{ url_for('user.strength') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-shield-alt me-2"></i>Go to Strength Checker
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card section-card h-100">
+                <div class="card-body p-4">
+                    <div class="shieldx-card-label mb-2">What this checks</div>
+                    <h5 class="fw-bold mb-4">Data Sources</h5>
+
+                    <div class="shieldx-policy-pill mb-3">
+                        <div class="shieldx-policy-value">Local</div>
+                        <div class="shieldx-stat-label mt-1">Checks against your local blacklist</div>
+                    </div>
+
+                    <div class="shieldx-policy-pill mb-3">
+                        <div class="shieldx-policy-value">HIBP</div>
+                        <div class="shieldx-stat-label mt-1">Checks against breach exposure data</div>
+                    </div>
+
+                    <div class="shieldx-policy-pill">
+                        <div class="shieldx-policy-value">Result</div>
+                        <div class="shieldx-stat-label mt-1">Shows whether the password appears compromised</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if is_compromised is not none %}
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            {% if is_compromised %}
+            <div class="card shieldx-watch-card-red h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div style="font-size: 2.4rem; font-weight: 800; line-height: 1;">LOCAL</div>
+                        <i class="fas fa-triangle-exclamation" style="font-size: 2rem; opacity: 0.18;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">Blacklist Match Found</h5>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.88);">
+                        This password was found in the local blacklist.
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <div class="card shieldx-watch-card-dark h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div style="font-size: 2.4rem; font-weight: 800; line-height: 1;">LOCAL</div>
+                        <i class="fas fa-circle-check" style="font-size: 2rem; opacity: 0.18;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">Blacklist Clear</h5>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.88);">
+                        This password was not found in the local blacklist.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-6">
+            {% if hibp_result.error %}
+            <div class="card shieldx-watch-card-brown h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div style="font-size: 2.4rem; font-weight: 800; line-height: 1;">HIBP</div>
+                        <i class="fas fa-circle-info" style="font-size: 2rem; opacity: 0.18;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">Check Issue</h5>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.88);">
+                        {{ hibp_result.error }}
+                    </p>
+                </div>
+            </div>
+            {% elif hibp_result.checked and hibp_result.found %}
+            <div class="card shieldx-watch-card-red h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div style="font-size: 2.4rem; font-weight: 800; line-height: 1;">HIBP</div>
+                        <i class="fas fa-triangle-exclamation" style="font-size: 2rem; opacity: 0.18;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">Breach Exposure Found</h5>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.88);">
+                        This password was found in the HIBP breach dataset
+                        <strong>{{ hibp_result.count }}</strong> time(s).
+                    </p>
+                </div>
+            </div>
+            {% elif hibp_result.checked and not hibp_result.found %}
+            <div class="card shieldx-watch-card-dark h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div style="font-size: 2.4rem; font-weight: 800; line-height: 1;">HIBP</div>
+                        <i class="fas fa-circle-check" style="font-size: 2rem; opacity: 0.18;"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">No Breach Match</h5>
+                    <p class="mb-0" style="color: rgba(255,255,255,0.88);">
+                        This password was not found in the HIBP breach dataset.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-12">
+            <div class="card section-card">
+                <div class="card-header">
+                    <div class="shieldx-card-label mb-1">Check Summary</div>
+                    <h5 class="mb-0 fw-bold">Detailed Result Overview</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="shieldx-policy-pill">
+                                <div class="shieldx-policy-value">
+                                    {% if is_compromised %}Detected{% else %}Clear{% endif %}
+                                </div>
+                                <div class="shieldx-stat-label mt-1">Local Blacklist Status</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="shieldx-policy-pill">
+                                <div class="shieldx-policy-value">
+                                    {% if hibp_result.error %}
+                                        Error
+                                    {% elif hibp_result.checked and hibp_result.found %}
+                                        Found
+                                    {% elif hibp_result.checked %}
+                                        Clear
+                                    {% else %}
+                                        Pending
+                                    {% endif %}
+                                </div>
+                                <div class="shieldx-stat-label mt-1">HIBP Status</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="shieldx-policy-pill">
+                                <div class="shieldx-policy-value">
+                                    {% if hibp_result.checked and hibp_result.found %}
+                                        {{ hibp_result.count }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </div>
+                                <div class="shieldx-stat-label mt-1">HIBP Exposure Count</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <ul class="shieldx-list">
+                            <li>A blacklist match usually indicates a weak or common password.</li>
+                            <li>A HIBP match means the password has appeared in known breach datasets.</li>
+                            <li>Use the Password Generator to create a stronger alternative if any risk is found.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
