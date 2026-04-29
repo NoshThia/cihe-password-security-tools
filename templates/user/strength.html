@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Password Strength Checker | CIHE ShieldX{% endblock %}
+{% block page_title %}Password Strength Checker{% endblock %}
+{% block page_subtitle %}Check password score, policy compliance, breach exposure, and AI security advice{% endblock %}
+
+{% block extra_css %}
+<style>
+    .strength-score-box {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .strength-score-number {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #fff;
+    }
+
+    .strength-score-label {
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin-top: 0.5rem;
+    }
+
+    .strength-pill {
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
+        font-weight: 800;
+        display: inline-block;
+    }
+
+    .strength-pill.very-weak,
+    .strength-pill.weak {
+        background: rgba(239, 90, 99, 0.18);
+        color: #ff9ca3;
+        border: 1px solid rgba(239, 90, 99, 0.26);
+    }
+
+    .strength-pill.fair {
+        background: rgba(240, 196, 83, 0.16);
+        color: #f7d87b;
+        border: 1px solid rgba(240, 196, 83, 0.26);
+    }
+
+    .strength-pill.good,
+    .strength-pill.strong {
+        background: rgba(121, 213, 138, 0.14);
+        color: #b7f0c1;
+        border: 1px solid rgba(121, 213, 138, 0.22);
+    }
+
+    .strength-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .strength-list li {
+        padding: 0.65rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: #d6dff4;
+    }
+
+    .strength-list li:last-child {
+        border-bottom: none;
+    }
+
+    .strength-empty {
+        min-height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .strength-empty-icon {
+        width: 76px;
+        height: 76px;
+        border-radius: 22px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #dce6ff;
+        font-size: 1.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="card section-card shieldx-glass-card mb-4">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-4">
+            <div style="max-width: 720px;">
+                <div class="shieldx-card-label mb-2">Password Audit</div>
+                <h2 class="fw-bold mb-2">Password Strength Checker</h2>
+                <p class="shieldx-card-copy mb-0">
+                    Test a password against strength scoring, policy rules, blacklist checks, breach exposure, and AI-based advice.
+                </p>
+            </div>
+
+            {% if result %}
+                {% set score = result.get('score', 0) %}
+                {% if score == 0 %}
+                    {% set score_label = 'Very Weak' %}
+                {% elif score == 1 %}
+                    {% set score_label = 'Weak' %}
+                {% elif score == 2 %}
+                    {% set score_label = 'Fair' %}
+                {% elif score == 3 %}
+                    {% set score_label = 'Good' %}
+                {% else %}
+                    {% set score_label = 'Strong' %}
+                {% endif %}
+
+                <div class="text-center">
+                    <div class="shieldx-kpi-value">{{ score }}/4</div>
+                    <div class="shieldx-card-label">{{ score_label }}</div>
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <div class="shieldx-kpi-value">READY</div>
+                    <div class="shieldx-card-label">CHECK</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card section-card shieldx-glass-card">
+                <div class="card-header">
+                    <div class="shieldx-card-label mb-1">Enter Password</div>
+                    <h5 class="fw-bold mb-0">Run Strength Check</h5>
+                </div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('user.strength') }}">
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">Password</label>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="password"
+                                name="password"
+                                value="{{ password_value }}"
+                                placeholder="Enter password"
+                                required
+                            >
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-circle-info me-2"></i>
+                            This checker reviews strength, policy rules, common-password risk, and breach exposure.
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-shield-alt me-2"></i>Check Strength
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card section-card shieldx-glass-card mt-4">
+                <div class="card-header">
+                    <div class="shieldx-card-label mb-1">Score Guide</div>
+                    <h5 class="fw-bold mb-0">Meaning</h5>
+                </div>
+
+                <div class="card-body">
+                    <ul class="strength-list">
+                        <li><span class="badge bg-danger me-2">0</span>Very Weak</li>
+                        <li><span class="badge bg-danger me-2">1</span>Weak</li>
+                        <li><span class="badge bg-warning text-dark me-2">2</span>Fair</li>
+                        <li><span class="badge bg-primary me-2">3</span>Good</li>
+                        <li><span class="badge bg-success me-2">4</span>Strong</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            {% if result %}
+                {% set score = result.get('score', 0) %}
+                {% if score == 0 %}
+                    {% set score_label = 'Very Weak' %}
+                    {% set score_class = 'very-weak' %}
+                {% elif score == 1 %}
+                    {% set score_label = 'Weak' %}
+                    {% set score_class = 'weak' %}
+                {% elif score == 2 %}
+                    {% set score_label = 'Fair' %}
+                    {% set score_class = 'fair' %}
+                {% elif score == 3 %}
+                    {% set score_label = 'Good' %}
+                    {% set score_class = 'good' %}
+                {% else %}
+                    {% set score_label = 'Strong' %}
+                    {% set score_class = 'strong' %}
+                {% endif %}
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card section-card shieldx-glass-card h-100">
+                            <div class="card-body strength-score-box">
+                                <div class="shieldx-card-label mb-3">zxcvbn Score</div>
+                                <div class="strength-score-number">{{ score }}/4</div>
+                                <div class="strength-score-label">
+                                    <span class="strength-pill {{ score_class }}">{{ score_label }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card section-card shieldx-glass-card h-100">
+                            <div class="card-header">
+                                <div class="shieldx-card-label mb-1">Feedback</div>
+                                <h5 class="fw-bold mb-0">Password Review</h5>
+                            </div>
+                            <div class="card-body">
+                                {% set feedback = result.get('feedback', {}) %}
+                                {% if feedback.get('warning') %}
+                                    <div class="alert alert-warning">
+                                        <strong>Warning:</strong> {{ feedback.get('warning') }}
+                                    </div>
+                                {% endif %}
+
+                                {% if feedback.get('suggestions') %}
+                                    <ul class="strength-list">
+                                        {% for suggestion in feedback.get('suggestions') %}
+                                            <li><i class="fas fa-lightbulb me-2"></i>{{ suggestion }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="alert alert-success mb-0">
+                                        <i class="fas fa-circle-check me-2"></i>
+                                        No major strength suggestions were returned.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="card section-card shieldx-glass-card h-100">
+                            <div class="card-header">
+                                <div class="shieldx-card-label mb-1">Policy Errors</div>
+                                <h5 class="fw-bold mb-0">Password Policy Check</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if policy_errors %}
+                                    <div class="alert alert-danger">
+                                        <strong>{{ policy_errors|length }} issue(s) found</strong>
+                                    </div>
+                                    <ul class="strength-list">
+                                        {% for error in policy_errors %}
+                                            <li><i class="fas fa-xmark me-2"></i>{{ error }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="alert alert-success mb-0">
+                                        <i class="fas fa-circle-check me-2"></i>
+                                        This password meets the current policy.
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card section-card shieldx-glass-card h-100">
+                            <div class="card-header">
+                                <div class="shieldx-card-label mb-1">AI Risk Prediction</div>
+                                <h5 class="fw-bold mb-0">Risk Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if ai_prediction %}
+                                    <div class="mb-3">
+                                        <span class="badge
+                                            {% if ai_prediction.risk_label == 'Weak' or ai_prediction.risk_label == 'Very Weak' %}bg-danger
+                                            {% elif ai_prediction.risk_label == 'Moderate' or ai_prediction.risk_label == 'Fair' %}bg-warning text-dark
+                                            {% else %}bg-success
+                                            {% endif %}">
+                                            {{ ai_prediction.risk_label }}
+                                        </span>
+                                    </div>
+
+                                    <div class="shieldx-policy-pill mb-3">
+                                        <div class="shieldx-card-label mb-1">Estimated Crack Time</div>
+                                        <div class="shieldx-policy-value">{{ ai_prediction.estimated_crack_time }}</div>
+                                    </div>
+
+                                    {% if ai_prediction.risk_reasons %}
+                                        <ul class="strength-list">
+                                            {% for reason in ai_prediction.risk_reasons %}
+                                                <li><i class="fas fa-triangle-exclamation me-2"></i>{{ reason }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% else %}
+                                    <p class="shieldx-card-copy mb-0">AI prediction will appear after checking a password.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card section-card shieldx-glass-card mb-4">
+                    <div class="card-header">
+                        <div class="shieldx-card-label mb-1">AI Security Advisor</div>
+                        <h5 class="fw-bold mb-0">Recommendation</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if ai_advice %}
+                            <p class="shieldx-card-copy mb-0">{{ ai_advice.advice }}</p>
+                        {% else %}
+                            <p class="shieldx-card-copy mb-0">No AI advice was generated.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card section-card shieldx-glass-card">
+                    <div class="card-header">
+                        <div class="shieldx-card-label mb-1">Next Step</div>
+                        <h5 class="fw-bold mb-0">Improve Your Password</h5>
+                    </div>
+                    <div class="card-body d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('user.generator') }}" class="btn btn-primary">
+                            <i class="fas fa-key me-2"></i>Go to Password Generator
+                        </a>
+
+                        <a href="{{ url_for('user.attack_simulator') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-bolt me-2"></i>Run Attack Simulator
+                        </a>
+
+                        <a href="{{ url_for('user.checker') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-search me-2"></i>Check Breach Status
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card section-card shieldx-glass-card h-100">
+                    <div class="card-body strength-empty">
+                        <div>
+                            <div class="strength-empty-icon">
+                                <i class="fas fa-user-shield"></i>
+                            </div>
+                            <h3 class="fw-bold mb-3">No Password Checked Yet</h3>
+                            <p class="shieldx-card-copy mb-0" style="max-width: 520px;">
+                                Enter a password to view strength score, feedback, policy errors, breach risk, and AI recommendations.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

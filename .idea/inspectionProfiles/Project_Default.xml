@@ -1,0 +1,22 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="flask" />
+          <option value="flask-sqlalchemy" />
+          <option value="flask-login" />
+          <option value="pyotp" />
+          <option value="qrcode" />
+          <option value="zxcvbn" />
+          <option value="werkzeug" />
+          <option value="pillow" />
+          <option value="requests" />
+          <option value="cryptography" />
+          <option value="openai" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

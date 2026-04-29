@@ -1,0 +1,815 @@
+{% extends "base.html" %}
+
+{% block title %}Password Attack Simulator | CIHE ShieldX{% endblock %}
+{% block page_title %}Password Attack Simulator{% endblock %}
+{% block page_subtitle %}Advanced password attack simulation with entropy, Hashcat, Gemini AI, and visual cracking analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sim-hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+
+    .sim-hero-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .sim-risk-meter {
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .sim-risk-circle {
+        width: 118px;
+        height: 118px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(circle at center, rgba(15, 25, 48, 0.95) 55%, transparent 56%),
+            conic-gradient(#ef5a63 var(--risk-angle), rgba(255,255,255,0.08) 0deg);
+        box-shadow: 0 18px 42px rgba(0,0,0,0.25);
+    }
+
+    .sim-risk-circle-inner {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .sim-section-title {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+        color: #9fb1e4;
+        margin-bottom: 0.45rem;
+    }
+
+    .sim-soft-text {
+        color: #aeb9d7;
+        line-height: 1.6;
+    }
+
+    .sim-tool-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        padding: 0.45rem 0.8rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.05);
+        color: #e7eeff;
+    }
+
+    .sim-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+    }
+
+    .sim-stat-box {
+        padding: 1.1rem;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        min-height: 120px;
+    }
+
+    .sim-stat-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.06);
+        color: #dce6ff;
+        margin-bottom: 0.75rem;
+    }
+
+    .sim-stat-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.2;
+    }
+
+    .sim-stat-label {
+        color: #9fb0d8;
+        font-size: 0.82rem;
+        margin-top: 0.35rem;
+        font-weight: 600;
+    }
+
+    .sim-hashcat-card,
+    .sim-ai-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sim-hashcat-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top right, rgba(239, 90, 99, 0.12), transparent 34%),
+            radial-gradient(circle at bottom left, rgba(75, 125, 230, 0.12), transparent 36%);
+        pointer-events: none;
+    }
+
+    .sim-ai-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top right, rgba(137, 150, 255, 0.16), transparent 34%),
+            radial-gradient(circle at bottom left, rgba(75, 125, 230, 0.12), transparent 36%);
+        pointer-events: none;
+    }
+
+    .sim-layer {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sim-chart-wrap {
+        height: 290px;
+        position: relative;
+    }
+
+    .sim-live-line {
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+    }
+
+    .sim-live-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #4b7de6, #f0c453, #ef5a63);
+        transition: width 0.4s ease;
+    }
+
+    .sim-terminal {
+        border-radius: 14px;
+        background: rgba(5, 10, 22, 0.42);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 1rem;
+        font-family: Consolas, monospace;
+        color: #dce6ff;
+        min-height: 92px;
+    }
+
+    .sim-scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .sim-scenario-card {
+        border-radius: 16px;
+        padding: 1.1rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        min-height: 185px;
+        transition: 0.18s ease;
+    }
+
+    .sim-scenario-card:hover {
+        transform: translateY(-3px);
+        background: rgba(255,255,255,0.06);
+    }
+
+    .sim-scenario-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .sim-scenario-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #dce6ff;
+        flex-shrink: 0;
+    }
+
+    .sim-scenario-title {
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.25rem;
+    }
+
+    .sim-time-badge {
+        display: inline-flex;
+        margin-top: 0.75rem;
+        border-radius: 999px;
+        padding: 0.45rem 0.8rem;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.84rem;
+    }
+
+    .sim-progress-line {
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .sim-progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #ef5a63, #f0c453);
+    }
+
+    .sim-empty-state {
+        min-height: 420px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 3rem 1.5rem;
+    }
+
+    .sim-empty-icon {
+        width: 84px;
+        height: 84px;
+        border-radius: 24px;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        font-size: 2rem;
+        color: #dce6ff;
+    }
+
+    @media (max-width: 1199px) {
+        .sim-stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 991px) {
+        .sim-hero-grid,
+        .sim-scenario-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .sim-stat-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sim-hero-title {
+            font-size: 1.55rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    {% if simulation %}
+        {% if simulation.overall_resistance == "Very Weak" %}
+            {% set risk_pct = 92 %}
+            {% set safe_pct = 8 %}
+        {% elif simulation.overall_resistance == "Weak" %}
+            {% set risk_pct = 78 %}
+            {% set safe_pct = 22 %}
+        {% elif simulation.overall_resistance == "Moderate" %}
+            {% set risk_pct = 55 %}
+            {% set safe_pct = 45 %}
+        {% elif simulation.overall_resistance == "Strong" %}
+            {% set risk_pct = 28 %}
+            {% set safe_pct = 72 %}
+        {% else %}
+            {% set risk_pct = 12 %}
+            {% set safe_pct = 88 %}
+        {% endif %}
+    {% else %}
+        {% set risk_pct = 0 %}
+        {% set safe_pct = 0 %}
+    {% endif %}
+
+    <div class="sim-hero-grid mb-4">
+        <div class="card section-card shieldx-glass-card mb-0">
+            <div class="card-body p-4">
+                <div class="shieldx-card-label mb-2">Attack Intelligence</div>
+                <h2 class="sim-hero-title">Password Attack Simulator</h2>
+                <p class="sim-soft-text mb-4">
+                    Analyse password survivability using entropy scoring, rule-based heuristics, breach exposure,
+                    Hashcat dictionary testing, animated cracking simulation, and Gemini AI advice.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="sim-tool-pill"><i class="fas fa-brain"></i> Entropy Score</span>
+                    <span class="sim-tool-pill"><i class="fas fa-terminal"></i> Hashcat Demo</span>
+                    <span class="sim-tool-pill"><i class="fas fa-chart-line"></i> Attack Charts</span>
+                    <span class="sim-tool-pill"><i class="fas fa-robot"></i> Gemini Advisor</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card section-card shieldx-glass-card mb-0">
+            <div class="card-body sim-risk-meter">
+                {% if simulation %}
+                    <div class="sim-risk-circle mb-3" style="--risk-angle: {{ risk_pct * 3.6 }}deg;">
+                        <div class="sim-risk-circle-inner">{{ risk_pct }}%</div>
+                    </div>
+                    <h3 class="fw-bold mb-1">{{ simulation.overall_resistance }}</h3>
+                    <div class="sim-stat-label">Attack Risk Level</div>
+                {% else %}
+                    <div class="sim-risk-circle mb-3" style="--risk-angle: 0deg;">
+                        <div class="sim-risk-circle-inner">0%</div>
+                    </div>
+                    <h3 class="fw-bold mb-1">Ready</h3>
+                    <div class="sim-stat-label">Awaiting Simulation</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card section-card shieldx-glass-card">
+                <div class="card-header">
+                    <div class="sim-section-title">Run Simulation</div>
+                    <h5 class="fw-bold mb-0">Enter Password</h5>
+                </div>
+
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password Input</label>
+                            <input
+                                type="password"
+                                name="password"
+                                class="form-control"
+                                placeholder="Enter password to simulate"
+                                value="{{ password_value }}"
+                                required
+                            >
+                            <small class="text-muted">
+                                The password is analysed temporarily for simulation only.
+                            </small>
+                        </div>
+
+                        <button class="btn btn-primary w-100 btn-lg">
+                            <i class="fas fa-play me-2"></i>Run Simulation
+                        </button>
+                    </form>
+
+                    <div class="shieldx-divider"></div>
+
+                    <div class="shieldx-soft-panel">
+                        <div class="sim-section-title">How it works</div>
+                        <ul class="shieldx-list mb-0">
+                            <li>Calculates entropy score in bits.</li>
+                            <li>Runs Hashcat dictionary attack demo.</li>
+                            <li>Shows animated cracking progress.</li>
+                            <li>Uses Gemini AI for security explanation.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+
+            {% if simulation %}
+
+            <div class="sim-stat-grid mb-4">
+                <div class="sim-stat-box">
+                    <div class="sim-stat-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div class="sim-stat-value">{{ simulation.overall_resistance }}</div>
+                    <div class="sim-stat-label">Overall Resistance</div>
+                </div>
+
+                <div class="sim-stat-box">
+                    <div class="sim-stat-icon"><i class="fas fa-brain"></i></div>
+                    <div class="sim-stat-value">{{ simulation.entropy }}</div>
+                    <div class="sim-stat-label">Entropy Bits</div>
+                </div>
+
+                <div class="sim-stat-box">
+                    <div class="sim-stat-icon"><i class="fas fa-ruler-horizontal"></i></div>
+                    <div class="sim-stat-value">{{ simulation.password_length }}</div>
+                    <div class="sim-stat-label">Password Length</div>
+                </div>
+
+                <div class="sim-stat-box">
+                    <div class="sim-stat-icon"><i class="fas fa-keyboard"></i></div>
+                    <div class="sim-stat-value">{{ simulation.charset_size }}</div>
+                    <div class="sim-stat-label">Charset Size</div>
+                </div>
+
+                <div class="sim-stat-box">
+                    <div class="sim-stat-icon"><i class="fas fa-gauge-high"></i></div>
+                    <div class="sim-stat-value">{{ simulation.zxcvbn_score }}/4</div>
+                    <div class="sim-stat-label">zxcvbn Score</div>
+                </div>
+            </div>
+
+            <div class="card section-card shieldx-glass-card mb-4">
+                <div class="card-body p-4">
+                    <div class="sim-section-title">Executive Summary</div>
+                    <h5 class="fw-bold mb-2">Attack Survivability Analysis</h5>
+                    <p class="sim-soft-text mb-0">{{ simulation.summary }}</p>
+                </div>
+            </div>
+
+            {% if simulation.ai_advice %}
+            <div class="card section-card shieldx-glass-card sim-ai-card mb-4">
+                <div class="card-body p-4 sim-layer">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div>
+                            <div class="sim-section-title">AI Security Advisor</div>
+                            <h5 class="fw-bold mb-2">
+                                <i class="fas fa-robot me-2"></i>Gemini Explanation
+                            </h5>
+                        </div>
+
+                        <span class="badge {% if simulation.ai_advice.source == 'gemini' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ simulation.ai_advice.source|upper }}
+                        </span>
+                    </div>
+
+                    <p class="sim-soft-text mt-3 mb-0">
+                        {{ simulation.ai_advice.advice }}
+                    </p>
+
+                    {% if simulation.ai_advice.error %}
+                        <small class="text-muted d-block mt-3">
+                            Note: {{ simulation.ai_advice.error }}
+                        </small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if simulation.hashcat_result %}
+            <div class="card section-card shieldx-glass-card sim-hashcat-card mb-4">
+                <div class="card-body p-4 sim-layer">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div>
+                            <div class="sim-section-title">External Tool Integration</div>
+                            <h5 class="fw-bold mb-2">
+                                <i class="fas fa-terminal me-2"></i>Hashcat Dictionary Attack Demo
+                            </h5>
+                        </div>
+
+                        {% if simulation.hashcat_result.cracked %}
+                            <span class="badge bg-danger">CRACKED</span>
+                        {% elif simulation.hashcat_result.available %}
+                            <span class="badge bg-success">NOT CRACKED</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">UNAVAILABLE</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="sim-soft-text mt-3 mb-3">
+                        {{ simulation.hashcat_result.message }}
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="sim-tool-pill">
+                            <i class="fas fa-hashtag"></i>{{ simulation.hashcat_result.hash_type }}
+                        </span>
+                        <span class="sim-tool-pill">
+                            <i class="fas fa-book"></i>{{ simulation.hashcat_result.attack_mode }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card section-card shieldx-glass-card mb-4">
+                <div class="card-header">
+                    <div class="sim-section-title">Live Attack Simulation</div>
+                    <h5 class="fw-bold mb-0">Animated Cracking Progress</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="sim-live-line mb-3">
+                        <div id="crackBar" class="sim-live-fill"></div>
+                    </div>
+
+                    <div class="sim-terminal">
+                        <div id="crackText">Initializing attack simulation...</div>
+                        <div class="text-muted mt-2">
+                            Entropy: {{ simulation.entropy }} bits | Resistance: {{ simulation.overall_resistance }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-xl-7">
+                    <div class="card section-card shieldx-glass-card h-100">
+                        <div class="card-header">
+                            <div class="sim-section-title">Visual Attack Analysis</div>
+                            <h5 class="fw-bold mb-0">Attack Method Comparison</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="sim-chart-wrap">
+                                <canvas id="attackBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-5">
+                    <div class="card section-card shieldx-glass-card h-100">
+                        <div class="card-header">
+                            <div class="sim-section-title">Security Balance</div>
+                            <h5 class="fw-bold mb-0">Risk vs Resistance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="sim-chart-wrap">
+                                <canvas id="riskDonutChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card section-card shieldx-glass-card mb-4">
+                <div class="card-header">
+                    <div class="sim-section-title">Scenario-Based Attack Modelling</div>
+                    <h5 class="fw-bold mb-0">Attacker Simulation Cards</h5>
+                </div>
+
+                <div class="card-body">
+                    <div class="sim-scenario-grid">
+                        {% for scenario in simulation.scenarios %}
+                            {% if scenario.title == "Online Attack" %}
+                                {% set progress = 30 %}
+                            {% elif scenario.title == "Offline Cracking" %}
+                                {% set progress = 65 %}
+                            {% elif scenario.title == "GPU Attack" %}
+                                {% set progress = 90 %}
+                            {% else %}
+                                {% set progress = 80 %}
+                            {% endif %}
+
+                            <div class="sim-scenario-card">
+                                <div class="sim-scenario-head">
+                                    <div class="sim-scenario-icon">
+                                        <i class="{{ scenario.icon }}"></i>
+                                    </div>
+                                    <div>
+                                        <div class="sim-scenario-title">{{ scenario.title }}</div>
+                                        {% if scenario.severity == "danger" %}
+                                            <span class="badge bg-danger">High Risk</span>
+                                        {% elif scenario.severity == "warning" %}
+                                            <span class="badge bg-warning text-dark">Moderate Risk</span>
+                                        {% elif scenario.severity == "success" %}
+                                            <span class="badge bg-success">Low Risk</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">Modelled</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <p class="sim-soft-text small mb-2">{{ scenario.description }}</p>
+
+                                <span class="sim-time-badge">
+                                    <i class="fas fa-clock me-2"></i>{{ scenario.estimated_time }}
+                                </span>
+
+                                <div class="sim-progress-line">
+                                    <div class="sim-progress-fill" style="width: {{ progress }}%;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card section-card shieldx-glass-card">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <div class="sim-section-title">Recommended Next Step</div>
+                        <h5 class="fw-bold mb-1">Improve Password Resistance</h5>
+                        <p class="sim-soft-text mb-0">
+                            Generate a longer, unique password and avoid dictionary words, names, dates, and reused credentials.
+                        </p>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('user.generator') }}" class="btn btn-primary">
+                            <i class="fas fa-key me-2"></i>Generate Password
+                        </a>
+                        <a href="{{ url_for('user.strength') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-shield-alt me-2"></i>Strength Checker
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+
+            <div class="card section-card shieldx-glass-card">
+                <div class="card-body sim-empty-state">
+                    <div>
+                        <div class="sim-empty-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">No Simulation Run Yet</h3>
+                        <p class="sim-soft-text mb-0">
+                            Enter a password to generate entropy scoring, Hashcat output, Gemini AI advice,
+                            animated cracking progress, scenario cards, charts, and recommended actions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% if simulation %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const barCtx = document.getElementById("attackBarChart");
+    const donutCtx = document.getElementById("riskDonutChart");
+    const crackBar = document.getElementById("crackBar");
+    const crackText = document.getElementById("crackText");
+
+    const attackLabels = [
+        {% for scenario in simulation.scenarios %}
+            "{{ scenario.title }}",
+        {% endfor %}
+    ];
+
+    const attackValues = [
+        {% for scenario in simulation.scenarios %}
+            {% if "Less than 1 second" in scenario.estimated_time %}
+                95,
+            {% elif "Instant" in scenario.estimated_time %}
+                100,
+            {% elif "minute" in scenario.estimated_time|lower %}
+                80,
+            {% elif "hour" in scenario.estimated_time|lower %}
+                65,
+            {% elif "day" in scenario.estimated_time|lower %}
+                45,
+            {% elif "year" in scenario.estimated_time|lower %}
+                20,
+            {% else %}
+                35,
+            {% endif %}
+        {% endfor %}
+    ];
+
+    if (barCtx) {
+        new Chart(barCtx, {
+            type: "bar",
+            data: {
+                labels: attackLabels,
+                datasets: [{
+                    label: "Relative Attack Success Risk",
+                    data: attackValues,
+                    borderWidth: 1,
+                    borderRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "#dce6ff"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: "#aeb9d7"
+                        },
+                        grid: {
+                            color: "rgba(255,255,255,0.06)"
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: "#aeb9d7"
+                        },
+                        grid: {
+                            color: "rgba(255,255,255,0.06)"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    if (donutCtx) {
+        new Chart(donutCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Attack Risk", "Resistance"],
+                datasets: [{
+                    data: [{{ risk_pct }}, {{ safe_pct }}],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: "#dce6ff",
+                            padding: 18
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    if (crackBar && crackText) {
+        let progress = 0;
+        const finalProgress = {{ risk_pct }};
+
+        const messages = [
+            "Loading attack profile...",
+            "Checking dictionary patterns...",
+            "Testing rule-based mutations...",
+            "Estimating GPU cracking speed...",
+            "Analysing entropy resistance...",
+            "Finalising attack simulation..."
+        ];
+
+        let messageIndex = 0;
+
+        const interval = setInterval(function () {
+            progress += Math.max(3, finalProgress / 10);
+
+            if (messageIndex < messages.length) {
+                crackText.innerText = messages[messageIndex];
+                messageIndex += 1;
+            }
+
+            if (progress >= finalProgress) {
+                progress = finalProgress;
+                crackBar.style.width = progress + "%";
+
+                if (finalProgress >= 75) {
+                    crackText.innerText = "High cracking risk detected. The password may be vulnerable to realistic attack models.";
+                } else if (finalProgress >= 45) {
+                    crackText.innerText = "Moderate cracking risk detected. Some improvements are recommended.";
+                } else {
+                    crackText.innerText = "Low cracking risk detected. The password shows stronger resistance.";
+                }
+
+                clearInterval(interval);
+            } else {
+                crackBar.style.width = progress + "%";
+            }
+        }, 450);
+    }
+});
+</script>
+{% endif %}
+{% endblock %}
