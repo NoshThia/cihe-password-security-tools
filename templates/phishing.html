@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card" style="background:#1e2d4f; border-radius:18px; color:white; padding:25px;">
+
+    <h1>AI Phishing Detection Tool</h1>
+
+    <form method="POST">
+        <label><strong>Paste suspicious email or message:</strong></label><br><br>
+
+        <textarea name="message_text" rows="8"
+            placeholder="Paste suspicious email, SMS, or message here..."
+            style="width:100%; background:#0f172a; color:white; border:1px solid #334155; border-radius:10px; padding:15px; font-size:16px;">{{ message_text }}</textarea>
+
+        <br><br>
+
+        <button type="submit" class="btn btn-primary">
+            Check Phishing
+        </button>
+    </form>
+
+    {% if result %}
+    <div style="margin-top:30px; padding:25px; background:#101827; border-radius:15px; color:white;">
+
+        <h2 style="color:white;">Result</h2>
+
+        <p style="color:white;">
+            <strong>Risk:</strong>
+            <span style="color:#ff6b6b; font-weight:bold;">{{ result.label }}</span>
+        </p>
+
+        <p style="color:white;">
+            <strong>Source:</strong>
+            <span style="color:#7dd3fc;">{{ result.source }}</span>
+        </p>
+
+        {% if result.score is defined %}
+        <p style="color:white;">
+            <strong>Phishing Score:</strong>
+            <span style="color:#facc15;">{{ result.score }}</span>
+        </p>
+        {% endif %}
+
+        <div style="margin-top:20px; padding:18px; background:#111827; border-left:4px solid #3b82f6; border-radius:10px;">
+            <strong style="color:#93c5fd;">Analysis</strong>
+
+            <pre style="white-space:pre-wrap; color:white; font-family:inherit; line-height:1.6; margin-top:10px;">{{ result.advice }}</pre>
+        </div>
+
+        {% if result.reasons %}
+        <div style="margin-top:20px; padding:18px; background:#1e293b; border-left:4px solid #f87171; border-radius:10px;">
+            <strong style="color:#facc15;">
+                🔍 Detected Issues
+            </strong>
+
+            <ul style="margin-top:12px; padding-left:22px;">
+                {% for reason in result.reasons %}
+                <li style="color:#fca5a5; margin-bottom:8px; line-height:1.5;">
+                    {{ reason }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div style="margin-top:20px; padding:18px; background:#111827; border-left:4px solid #22c55e; border-radius:10px;">
+            <strong style="color:#86efac;">
+                Recommended Action
+            </strong>
+
+            <p style="margin-top:10px; color:white; line-height:1.6;">
+                Do not click suspicious links or enter personal information.
+                Verify the message by visiting the official website directly or contacting the organisation through trusted channels.
+            </p>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

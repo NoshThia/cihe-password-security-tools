@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | CIHE ShieldX{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Vault visibility, watchtower insight, and recent security activity{% endblock %}
+
+{% block content %}
+{% set risk_score = avg_risk if avg_risk is defined and avg_risk is not none else 0 %}
+{% set risk_level = system_risk_level if system_risk_level is defined and system_risk_level else 'Low' %}
+{% set risk_reason = 'AI-inspired security analysis based on saved vault items, reused passwords, weak password patterns, MFA status, and recent activity.' %}
+
+<div class="mb-4">
+    <div class="shieldx-kpi-strip">
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon blue">
+                <i class="fas fa-key"></i>
+            </div>
+            <div>
+                <div class="shieldx-kpi-value">{{ total_items }}</div>
+                <div class="shieldx-kpi-subtitle">Vault Items</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon red">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ weak_passwords }}</div>
+                    <div class="shieldx-kpi-title" style="color:#ef8b92;">At Risk</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">Weak or Reused Passwords</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon green">
+                <i class="fas fa-shield-check"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ mfa_enabled_users }}</div>
+                    <div class="shieldx-kpi-title" style="color:#8ddc9e;">Secure</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">MFA Enabled</div>
+            </div>
+        </div>
+
+        <div class="shieldx-kpi-item">
+            <div class="shieldx-kpi-icon alert">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <div class="shieldx-kpi-value">{{ breaches_detected }}</div>
+                    <div class="shieldx-kpi-title" style="color:#ef8b92;">Compromised</div>
+                </div>
+                <div class="shieldx-kpi-subtitle">Breaches Detected</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <h3 class="shieldx-card-heading mb-3">Security Health</h3>
+
+                <div class="shieldx-gauge-wrap">
+                    <div class="shieldx-gauge">
+                        <div class="shieldx-gauge-arc"></div>
+                        <div class="shieldx-gauge-center">
+                            <div class="shieldx-gauge-score">{{ risk_score }}</div>
+                            <div class="shieldx-gauge-label">{{ risk_level }}</div>
+                            <div class="shieldx-gauge-sub">Risk: {{ risk_score }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="shieldx-divider"></div>
+
+                <ul class="shieldx-health-list">
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ weak_passwords }} Vulnerable Items</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ breaches_detected }} Reused or Breach-Flagged Passwords</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-circle-check"></i>
+                        <span>{{ secure_items }} Secure Items</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card section-card shieldx-glass-card h-100">
+            <div class="card-body p-4">
+                <h3 class="shieldx-card-heading mb-4">Watchtower Insight</h3>
+
+                <h4 style="font-size:1.05rem; font-weight:800; margin-bottom:10px; color:#f2f6ff;">
+                    Potential Security Risks Identified
+                </h4>
+
+                <p class="shieldx-card-copy mb-3" style="font-style: italic;">
+                    {{ risk_reason }}
+                </p>
+
+                <div class="shieldx-divider"></div>
+
+                <ul class="shieldx-list mb-4">
+                    <li><strong>{{ breaches_detected }} compromised or reused passwords</strong> found</li>
+                    <li><strong>{{ weak_passwords }} weak or reused passwords</strong> need review</li>
+                    <li><strong>{{ secure_items }} secure vault items</strong> currently detected</li>
+                    <li><strong>{{ mfa_enabled_users }} users</strong> currently have MFA enabled</li>
+                </ul>
+
+                <a href="{{ url_for('user.saved_passwords') }}" class="btn btn-primary px-4">
+                    Review Vault
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card section-card shieldx-glass-card">
+    <div class="card-body p-0">
+        <div class="d-flex justify-content-between align-items-center px-4 pt-4 pb-3">
+            <h3 class="shieldx-card-heading mb-0">Recent Activity</h3>
+            <a href="{{ url_for('admin.logs') }}" class="btn btn-link text-decoration-none" style="color:#a9c0ff; font-weight:700;">
+                View All <i class="fas fa-chevron-right ms-1" style="font-size:0.82rem;"></i>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th style="min-width: 150px;">Time</th>
+                        <th style="min-width: 220px;">Action</th>
+                        <th>Details</th>
+                        <th style="min-width: 120px;">IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_logs %}
+                        {% for log in recent_logs[:5] %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%I:%M %p') }}</td>
+                            <td><span class="badge bg-dark">{{ log.action }}</span></td>
+                            <td>{{ log.detail }}</td>
+                            <td>{{ log.ip_address or '•••' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">No recent activity found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

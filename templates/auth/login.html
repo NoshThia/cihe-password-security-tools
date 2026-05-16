@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Login | CIHE ShieldX{% endblock %}
+
+{% block content %}
+<div class="shieldx-auth-shell">
+    <div class="shieldx-auth-panel">
+
+        <div class="shieldx-auth-left">
+            <div>
+                <div class="shieldx-auth-brand">
+                    <div class="shieldx-auth-brand-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-1">CIHE ShieldX</h2>
+                        <p class="mb-0">Intelligent Security. Smarter Defence.</p>
+                    </div>
+                </div>
+
+                <div class="shieldx-auth-copy">
+                    <div class="shieldx-overline">Security Workspace</div>
+                    <h1>Welcome to the next generation of password defence</h1>
+                    <p>
+                        A smart cybersecurity platform built for Crown Institute of Higher Education,
+                        combining authentication, MFA, risk awareness, and AI-inspired behaviour monitoring.
+                    </p>
+                </div>
+            </div>
+
+            <div class="shieldx-auth-features">
+                <div class="shieldx-auth-feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure login and multi-factor authentication</span>
+                </div>
+                <div class="shieldx-auth-feature">
+                    <i class="fas fa-brain"></i>
+                    <span>AI Behaviour-Based Risk Detection</span>
+                </div>
+                <div class="shieldx-auth-feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Smart login anomaly scoring</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="shieldx-auth-right">
+            <div class="shieldx-auth-card">
+                <div class="shieldx-auth-card-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+
+                <h3>Sign in</h3>
+                <p class="shieldx-auth-subtitle">Access your CIHE ShieldX dashboard</p>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-semibold">Username</label>
+                        <div class="input-group shieldx-auth-input">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">Password</label>
+                        <div class="input-group shieldx-auth-input">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn shieldx-auth-login-btn">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login
+                        </button>
+                    </div>
+
+                    <div class="shieldx-auth-links">
+                        <a href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
+                    </div>
+                </form>
+
+                <div class="shieldx-auth-footer">
+                    Crown Institute of Higher Education Capstone Project
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

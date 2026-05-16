@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PSMS{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700,800">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% if current_user.is_authenticated %}hold-transition sidebar-mini layout-fixed{% else %}hold-transition{% endif %}">
+
+{% if current_user.is_authenticated %}
+<div class="wrapper shieldx-app">
+
+    <aside class="main-sidebar shieldx-sidebar elevation-0">
+        <a href="{{ url_for('auth.dashboard_redirect') }}" class="brand-link shieldx-brand-link text-decoration-none">
+            <span class="shieldx-brand-mark">
+                <i class="fas fa-shield-halved"></i>
+            </span>
+            <span class="brand-text font-weight-light">
+                <strong>CIHE ShieldX</strong>
+            </span>
+        </a>
+
+        <div class="sidebar d-flex flex-column h-100">
+            <div class="shieldx-sidebar-main">
+                <nav class="mt-3">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+
+                        <li class="nav-header">OVERVIEW</li>
+
+                        {% if current_user.role == "admin" %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% elif current_user.role == "analyst" %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.dashboard') }}" class="nav-link {% if request.endpoint == 'analyst.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('user.dashboard') }}" class="nav-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-house"></i>
+                                    <p>Dashboard</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-header">PASSWORD TOOLS</li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.saved_passwords') }}" class="nav-link {% if request.endpoint == 'user.saved_passwords' %}active{% endif %}">
+                                <i class="nav-icon fas fa-vault"></i>
+                                <p>Vault</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.generator') }}" class="nav-link {% if request.endpoint == 'user.generator' %}active{% endif %}">
+                                <i class="nav-icon fas fa-key"></i>
+                                <p>Password Generator</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.strength') }}" class="nav-link {% if request.endpoint == 'user.strength' %}active{% endif %}">
+                                <i class="nav-icon fas fa-user-shield"></i>
+                                <p>Password Strength Checker</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.checker') }}" class="nav-link {% if request.endpoint == 'user.checker' %}active{% endif %}">
+                                <i class="nav-icon fas fa-shield-alt"></i>
+                                <p>Breach Monitoring</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.attack_simulator') }}" class="nav-link {% if request.endpoint == 'user.attack_simulator' %}active{% endif %}">
+                                <i class="nav-icon fas fa-bolt"></i>
+                                <p>Attack Simulator</p>
+                            </a>
+                        </li>
+
+                       <li class="nav-item">
+    <a href="{{ url_for('phishing.phishing') }}" class="nav-link {% if request.endpoint == 'phishing.phishing' %}active{% endif %}">
+        <i class="nav-icon fas fa-fish"></i>
+        <p>Phishing</p>
+    </a>
+</li>
+
+                        <li class="nav-item">
+                            <a href="{{ url_for('user.health_score') }}" class="nav-link {% if request.endpoint == 'user.health_score' %}active{% endif %}">
+                                <i class="nav-icon fas fa-heart-pulse"></i>
+                                <p>Cyber Health Score</p>
+                            </a>
+                        </li>
+
+                        {% if current_user.role == "admin" %}
+                            <li class="nav-header">ADMINISTRATION</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.users') }}" class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-users"></i>
+                                    <p>Manage Users</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.policies') }}" class="nav-link {% if request.endpoint == 'admin.policies' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-gear"></i>
+                                    <p>Policies</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-header">REPORTING</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin.logs') }}" class="nav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-clipboard-list"></i>
+                                    <p>Audit Logs</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.reports') }}" class="nav-link {% if request.endpoint == 'analyst.reports' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-file-shield"></i>
+                                    <p>Security Reports</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.dashboard') }}" class="nav-link {% if request.endpoint == 'analyst.dashboard' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-chart-pie"></i>
+                                    <p>Analyst Dashboard</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if current_user.role == "analyst" %}
+                            <li class="nav-header">REPORTING</li>
+
+                            <li class="nav-item">
+                                <a href="{{ url_for('analyst.reports') }}" class="nav-link {% if request.endpoint == 'analyst.reports' %}active{% endif %}">
+                                    <i class="nav-icon fas fa-file-lines"></i>
+                                    <p>Security Reports</p>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="shieldx-sidebar-bottom">
+                <div class="shieldx-side-user">
+                    <div class="shieldx-side-user-avatar">
+                        {{ current_user.username[:1]|upper }}
+                    </div>
+                    <div class="shieldx-side-user-meta">
+                        <div class="shieldx-side-user-name">{{ current_user.username }}</div>
+                        <div class="shieldx-side-user-role">{{ current_user.role|upper }}</div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('auth.logout') }}" class="shieldx-side-logout">
+                    Log Out
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="content-wrapper shieldx-content-wrapper">
+        <nav class="main-header navbar navbar-expand border-0 shieldx-topbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link shieldx-icon-btn" data-widget="pushmenu" href="#" role="button">
+                        <i class="fas fa-bars"></i>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="shieldx-topbar-search-wrap">
+                <div class="shieldx-topbar-search">
+                    <i class="fas fa-search shieldx-topbar-search-icon"></i>
+                    <input type="text" class="shieldx-topbar-search-input" placeholder="Search....">
+                </div>
+            </div>
+
+            <div class="shieldx-topbar-actions">
+                <button class="shieldx-top-icon" type="button">
+                    <i class="fas fa-bell"></i>
+                </button>
+
+                <div class="dropdown">
+                    <button class="shieldx-top-profile shieldx-profile-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="shieldx-top-profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="shieldx-top-profile-name">{{ current_user.username }}</span>
+                    </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shieldx-dropdown-menu">
+                        <li>
+                            <div class="shieldx-dropdown-user">
+                                <div class="shieldx-dropdown-user-name">{{ current_user.username }}</div>
+                                <div class="shieldx-dropdown-user-role">{{ current_user.role|upper }}</div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item shieldx-dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Log Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <section class="content pt-4 pb-4">
+            <div class="container-fluid">
+
+{% else %}
+
+<div class="auth-page-wrapper">
+    <div class="auth-page-inner">
+
+{% endif %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'warning' if category == 'message' else category }} alert-dismissible fade show shieldx-alert {% if current_user.is_authenticated %}mb-4{% else %}mb-3{% endif %}" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+
+            </div>
+        </section>
+    </div>
+</div>
+
+{% else %}
+
+    </div>
+</div>
+
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+
+{% if current_user.is_authenticated %}
+<!-- ShieldAI Assistant Widget -->
+<style>
+  #s-fab{position:fixed;bottom:26px;right:26px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#1a2332,#1a73e8);color:#fff;border:none;font-size:1.15rem;cursor:pointer;z-index:9999;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(26,115,232,0.4);transition:transform .2s,box-shadow .2s;}
+  #s-fab:hover{transform:scale(1.08);}
+  #s-fab .s-ndot{position:absolute;top:3px;right:3px;width:11px;height:11px;background:#28a745;border-radius:50%;border:2px solid #fff;}
+  #s-popup{position:fixed;bottom:90px;right:26px;width:320px;height:450px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:1px solid #d8e4f8;z-index:9998;display:none;flex-direction:column;overflow:hidden;transition:width .3s,height .3s;animation:sPop .2s ease;}
+  #s-popup.open{display:flex;}
+  #s-popup.expanded{width:500px;height:620px;}
+  @keyframes sPop{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .s-hdr{background:linear-gradient(135deg,#1a2332,#1a73e8);padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .s-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;flex-shrink:0;}
+  .s-online{display:inline-block;width:7px;height:7px;background:#28a745;border-radius:50%;margin-right:4px;animation:bS 2s infinite;}
+  @keyframes bS{0%,100%{opacity:1}50%{opacity:.3}}
+  .s-hdr-btns{margin-left:auto;display:flex;gap:4px;}
+  .s-hbtn{background:none;border:none;color:rgba(255,255,255,.65);font-size:.9rem;cursor:pointer;padding:3px 7px;border-radius:5px;transition:background .15s;}
+  .s-hbtn:hover{background:rgba(255,255,255,.15);color:#fff;}
+  .s-msgs{flex:1;overflow-y:auto;padding:12px;background:#f5f7fb;display:flex;flex-direction:column;gap:10px;}
+  .s-msgs::-webkit-scrollbar{width:3px;}
+  .s-msgs::-webkit-scrollbar-thumb{background:#c5cee0;border-radius:3px;}
+  .s-m{display:flex;gap:8px;max-width:95%;animation:mIn .18s ease;}
+  @keyframes mIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+  .s-m.b{align-self:flex-start;}.s-m.u{align-self:flex-end;flex-direction:row-reverse;}
+  .s-mav{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;margin-top:2px;}
+  .s-m.b .s-mav{background:linear-gradient(135deg,#1a2332,#1a73e8);color:#fff;}
+  .s-m.u .s-mav{background:#dce8ff;color:#1a73e8;}
+  .s-bbl{padding:9px 13px;border-radius:13px;font-size:.81rem;line-height:1.55;word-break:break-word;}
+  .s-m.b .s-bbl{background:#fff;border:1px solid #dde5f5;border-bottom-left-radius:3px;color:#1a2332;}
+  .s-m.u .s-bbl{background:linear-gradient(135deg,#1a73e8,#1558b0);color:#fff;border-bottom-right-radius:3px;}
+  .s-bbl strong{font-weight:700;color:#1a2332;}
+  .s-bbl ul{margin:5px 0 0;padding-left:16px;}
+  .s-bbl li{margin-bottom:3px;}
+  .s-opts{display:flex;flex-direction:column;gap:6px;margin-top:6px;width:100%;}
+  .s-opt{background:#fff;border:1.5px solid #d0dcff;color:#1a2332;border-radius:10px;padding:9px 12px;font-size:.79rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;font-family:inherit;line-height:1.35;transition:all .15s;}
+  .s-opt:hover{background:#edf2ff;border-color:#1a73e8;}
+  .s-opt .oi{font-size:.92rem;flex-shrink:0;}
+  .s-back{display:inline-flex;align-items:center;gap:6px;background:#f0f4ff;border:1px solid #d0dcff;color:#1a73e8;border-radius:8px;padding:6px 12px;font-size:.78rem;cursor:pointer;margin-top:8px;font-family:inherit;transition:background .15s;}
+  .s-back:hover{background:#dce8ff;}
+  .s-ftr{padding:8px 12px;background:#fff;border-top:1px solid #e3e8ef;flex-shrink:0;text-align:center;}
+  .s-ftr-txt{font-size:.71rem;color:#adb5bd;}
+</style>
+
+<button id="s-fab" onclick="sToggle()" title="ShieldAI Assistant">
+  <i class="fas fa-shield-halved"></i>
+  <span class="s-ndot"></span>
+</button>
+
+<div id="s-popup">
+  <div class="s-hdr">
+    <div class="s-av"><i class="fas fa-shield-halved"></i></div>
+    <div>
+      <div style="color:#fff;font-weight:700;font-size:.9rem;line-height:1.2;">ShieldAI Assistant</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.7rem;"><span class="s-online"></span>Powered by ShieldAI</div>
+    </div>
+    <div class="s-hdr-btns">
+      <button class="s-hbtn" id="s-exp-btn" onclick="sExpand()" title="Maximise"><i class="fas fa-expand"></i></button>
+      <button class="s-hbtn" onclick="sToggle()" title="Close"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+  <div class="s-msgs" id="s-msgs">
+    <div class="s-m b">
+      <div class="s-mav"><i class="fas fa-shield-halved" style="font-size:.6rem;"></i></div>
+      <div>
+        <div class="s-bbl">Hi <strong style="color:#1a2332;">{{ current_user.username }}</strong>! 👋 I'm <strong style="color:#1a2332;">ShieldAI</strong>.<br>Choose a question to get started:</div>
+        <div id="s-main-menu"></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-ftr"><span class="s-ftr-txt"><i class="fas fa-shield-halved" style="font-size:.65rem;"></i> Powered by ShieldAI</span></div>
+</div>
+
+<script>
+(function(){
+  const QA={
+    tools:{q:"What tools does this app have?",icon:"🛠️",a:"CIHE Sentinel AI includes <strong>7 security tools</strong>:",list:["Password Strength Checker — AI analysis + breach detection","Password Generator — random or memorable mode","Blacklist & HIBP Checker — checks if your password was exposed in a breach","Attack Simulator — simulates real cracking attacks + live Hashcat demo","Password Vault — Fernet-encrypted password storage","Cyber Health Score — your personal security rating (0–100)","ShieldAI Assistant — that's me!"],related:["strength","generator","vault","healthscore"]},
+    strength:{q:"How does the Strength Checker work?",icon:"💪",a:"The <strong>Password Strength Checker</strong> gives a full security analysis:",list:["Scores using zxcvbn + a custom AI model","Labels it: Very Weak / Weak / Moderate / Strong / Very Strong","Estimates real-world crack time","Checks against a local blacklist of common passwords","Checks HIBP breach database using k-anonymity — your full password is never sent","Gemini AI writes a plain-language explanation of the risks","Suggests a stronger alternative password"],related:["hibp","attack","generator"]},
+    generator:{q:"How does the Password Generator work?",icon:"🔑",a:"The <strong>Password Generator</strong> creates strong passwords in two modes:",list:["Random mode — cryptographically secure characters that meet the admin policy","Memorable mode — enter a seed word, the system transforms it with leet-speak and random words","Generated passwords can be saved directly to your encrypted vault","All passwords respect the admin-configured password policy rules"],related:["vault","policy","strength"]},
+    attack:{q:"How does the Attack Simulator work?",icon:"⚡",a:"The <strong>Attack Simulator</strong> tests your password against 4 real attack types:",list:["Online Attack — 10 attempts/sec (throttled login form)","Offline Cracking — 100,000 attempts/sec (stolen password hash)","GPU Attack — 10 billion attempts/sec (high-end GPU cluster)","Dictionary Attack — checks for common words and patterns","Hashcat Demo — runs a REAL MD5 dictionary crack using the actual Hashcat tool"],related:["hashcat","strength","hibp"]},
+    hashcat:{q:"How does Hashcat work in this app?",icon:"🔨",a:"<strong>Hashcat</strong> is integrated into the Attack Simulator as a live demo:",list:["Your test password is hashed as MD5","Hashcat runs a dictionary attack against that hash using common_passwords.txt","If your password is in the wordlist, Hashcat cracks it and shows the result","This is how real attackers crack stolen password databases","It proves why common or simple passwords are extremely dangerous"],related:["attack","strength","hibp"]},
+    vault:{q:"What is the Password Vault?",icon:"🔒",a:"The <strong>Password Vault</strong> securely stores your passwords:",list:["All passwords are encrypted using Fernet symmetric encryption before being saved","Raw password values are never stored in the database as plaintext","Save any generated password with a custom label","The vault detects and flags reused passwords across your accounts","View and delete saved entries at any time"],related:["generator","healthscore","reuse"]},
+    hibp:{q:"How does the Breach Checker work?",icon:"🔍",a:"The <strong>Breach Checker</strong> tells you if your password appeared in known data breaches:",list:["Uses the Have I Been Pwned (HIBP) database with billions of breached passwords","Uses k-anonymity — only the first 5 characters of the SHA-1 hash are sent","Your full password NEVER leaves the app","Shows how many times that password appeared in real breaches","Also checks a local blacklist of the most commonly used passwords"],related:["strength","attack","mfa"]},
+    healthscore:{q:"What is the Cyber Health Score?",icon:"❤️",a:"The <strong>Cyber Health Score</strong> gives you a personal security rating from 0 to 100:",list:["MFA Status (25 pts) — is Multi-Factor Authentication enabled?","Login Behaviour Risk (25 pts) — any unusual login activity detected?","Password Reuse in Vault (25 pts) — same password used across multiple accounts?","Security Tool Engagement (25 pts) — are you using the tools regularly?","You receive a letter grade A–F, a list of issues, and specific recommendations"],related:["mfa","loginrisk","reuse","tools"]},
+    mfa:{q:"How does MFA work in this system?",icon:"🛡️",a:"<strong>Multi-Factor Authentication (MFA)</strong> is mandatory for all users:",list:["On first login, scan a QR code with Google Authenticator or Authy","A new 6-digit TOTP code is generated every 30 seconds","Enter this code after your password on every login","Even if your password is stolen, attackers cannot log in without your phone","MFA blocks over 99% of automated credential attacks"],related:["loginrisk","roles","healthscore"]},
+    loginrisk:{q:"What is Login Risk Detection?",icon:"⚠️",a:"<strong>Behaviour-based Login Risk Detection</strong> runs on every login:",list:["New IP address detected → +40 risk points","Unusual login hour (midnight–5am) → +20 risk points","Recent failed login attempts → +10 to +30 risk points","Risk levels: Low (0–29), Medium (30–59), High (60+)","Admins can see the risk level of every user in the dashboard"],related:["mfa","roles","healthscore"]},
+    roles:{q:"What are the user roles?",icon:"👥",a:"CIHE Sentinel AI has <strong>3 user roles</strong>:",list:["Admin — manages users, sets password policies, views all audit logs and risk dashboard","Analyst — views security reports, monitors failed logins and MFA adoption stats","User — accesses all personal tools: Strength Checker, Generator, Vault, Attack Simulator, Health Score, ShieldAI"],related:["policy","loginrisk","mfa"]},
+    policy:{q:"What is the Password Policy?",icon:"📋",a:"The <strong>Password Policy</strong> is set by the Admin and applies to all tools:",list:["Minimum password length","Whether uppercase letters are required","Whether lowercase letters are required","Whether digits are required","Whether symbols are required","The Generator and Strength Checker both enforce these rules automatically"],related:["generator","strength","roles"]},
+    reuse:{q:"What is Password Reuse and why is it dangerous?",icon:"🔁",a:"<strong>Password reuse</strong> means using the same password on multiple accounts:",list:["If one site is breached, attackers try your credentials on every other site — credential stuffing","The Vault detects and flags reused passwords so you know which ones to change","Your Cyber Health Score is reduced if reused passwords are found","Always use a unique password for every account","Use the Password Generator to create a unique password instantly"],related:["vault","generator","hibp"]},
+    techstack:{q:"What technology is this app built with?",icon:"⚙️",a:"CIHE Sentinel AI is built with:",list:["Python & Flask — web framework","SQLite — database","Google Gemini (gemini-2.5-flash) — AI for password advice and ShieldAI","Hashcat — real password cracking tool in Attack Simulator","zxcvbn — password strength scoring","HIBP API — breach database (k-anonymity)","Fernet encryption — vault password storage","PyOTP — TOTP-based MFA","Bootstrap + AdminLTE — frontend UI"],related:["hashcat","mfa","hibp"]},
+    phishing:{q:"How does the Phishing Detector work?",icon:"🎣",a:"The <strong>Phishing Detector</strong> analyses URLs and emails for signs of phishing:",list:["Paste a suspicious URL or email text into the tool","The AI analyses tone, urgency, suspicious keywords, and domain patterns","Returns a risk score and plain-language explanation","Helps you spot fake emails and malicious links before clicking","Available in the sidebar under Phishing"],related:["tools","strength","hibp"]}
+  };
+
+  const MENU=['tools','strength','generator','attack','hashcat','vault','hibp','healthscore','phishing','mfa','loginrisk','roles','policy','reuse','techstack'];
+
+  function scrollDown(){const b=document.getElementById('s-msgs');b.scrollTop=b.scrollHeight;}
+
+  function makeMenu(keys){
+    const w=document.createElement('div');w.className='s-opts';
+    keys.forEach(k=>{
+      if(!QA[k])return;
+      const b=document.createElement('button');b.className='s-opt';
+      b.innerHTML=`<span class="oi">${QA[k].icon}</span><span>${QA[k].q}</span>`;
+      b.onclick=()=>askQ(k);w.appendChild(b);
+    });
+    return w;
+  }
+
+  function makeAnswer(key){
+    const item=QA[key];
+    const w=document.createElement('div');
+    let html=`<div class="s-bbl">${item.a}<ul style="margin-top:6px;">`;
+    item.list.forEach(li=>{html+=`<li>${li}</li>`;});
+    html+=`</ul></div>`;
+    w.innerHTML=html;
+    if(item.related&&item.related.length){
+      const lbl=document.createElement('div');
+      lbl.style.cssText='font-size:.73rem;color:#888;margin:10px 0 5px 0;';
+      lbl.textContent='Related questions:';
+      w.appendChild(lbl);w.appendChild(makeMenu(item.related));
+    }
+    const back=document.createElement('button');back.className='s-back';
+    back.innerHTML='<i class="fas fa-arrow-left" style="font-size:.7rem;"></i> Back to Menu';
+    back.onclick=showMainMenu;w.appendChild(back);
+    return w;
+  }
+
+  function askQ(key){
+    const item=QA[key];if(!item)return;
+    const box=document.getElementById('s-msgs');
+    const u=document.createElement('div');u.className='s-m u';
+    u.innerHTML=`<div class="s-mav"><span>{{ current_user.username[:1]|upper }}</span></div><div class="s-bbl">${item.icon} ${item.q}</div>`;
+    box.appendChild(u);scrollDown();
+    setTimeout(()=>{
+      const d=document.createElement('div');d.className='s-m b';
+      d.innerHTML=`<div class="s-mav"><i class="fas fa-shield-halved" style="font-size:.6rem;"></i></div><div></div>`;
+      d.querySelector('div:last-child').appendChild(makeAnswer(key));
+      box.appendChild(d);scrollDown();
+    },300);
+  }
+
+  function showMainMenu(){
+    const box=document.getElementById('s-msgs');
+    const d=document.createElement('div');d.className='s-m b';
+    const inner=document.createElement('div');
+    const lbl=document.createElement('div');lbl.className='s-bbl';lbl.textContent='Choose a question:';
+    inner.appendChild(lbl);inner.appendChild(makeMenu(MENU));
+    d.innerHTML=`<div class="s-mav"><i class="fas fa-shield-halved" style="font-size:.6rem;"></i></div>`;
+    d.appendChild(inner);box.appendChild(d);scrollDown();
+  }
+
+  let sOpen=false,sExp=false;
+
+  window.sToggle=function(){
+    sOpen=!sOpen;
+    const p=document.getElementById('s-popup');
+    const f=document.getElementById('s-fab');
+    p.classList.toggle('open',sOpen);
+    f.innerHTML=sOpen?'<i class="fas fa-times"></i>':'<i class="fas fa-shield-halved"></i><span class="s-ndot"></span>';
+    if(!sOpen){sExp=false;p.classList.remove('expanded');document.getElementById('s-exp-btn').innerHTML='<i class="fas fa-expand"></i>';}
+  };
+
+  window.sExpand=function(){
+    sExp=!sExp;
+    document.getElementById('s-popup').classList.toggle('expanded',sExp);
+    document.getElementById('s-exp-btn').innerHTML=sExp?'<i class="fas fa-compress"></i>':'<i class="fas fa-expand"></i>';
+    document.getElementById('s-exp-btn').title=sExp?'Minimise':'Maximise';
+    scrollDown();
+  };
+
+  document.getElementById('s-main-menu').appendChild(makeMenu(MENU));
+})();
+</script>
+{% endif %}
+</body>
+</html>
