@@ -1,60 +1,307 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container-fluid mt-4">
+{% block title %}Security Reports | CIHE ShieldX{% endblock %}
+{% block page_title %}Security Reports{% endblock %}
+{% block page_subtitle %}Security posture, password risks, MFA adoption, attack activity, and AI-generated recommendations{% endblock %}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1">Security Reports</h2>
-            <p class="text-muted mb-0">Detailed analyst logs and compliance review</p>
+{% block extra_css %}
+<style>
+    .report-hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .report-risk-circle {
+        width: 128px;
+        height: 128px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(circle at center, rgba(15, 25, 48, 0.95) 56%, transparent 57%),
+            conic-gradient(#ef5a63 {{ risk_score * 3.6 }}deg, rgba(255,255,255,0.08) 0deg);
+        box-shadow: 0 18px 42px rgba(0,0,0,0.25);
+    }
+
+    .report-risk-inner {
+        color: #fff;
+        text-align: center;
+    }
+
+    .report-risk-number {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .report-risk-label {
+        font-size: 0.8rem;
+        color: #aeb9d7;
+        margin-top: 6px;
+    }
+
+    .report-card-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .report-mini-card {
+        padding: 1.15rem;
+        border-radius: 16px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        min-height: 125px;
+    }
+
+    .report-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.06);
+        color: #dce6ff;
+        margin-bottom: 0.75rem;
+    }
+
+    .report-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .report-label {
+        color: #9fb0d8;
+        font-size: 0.86rem;
+        margin-top: 0.45rem;
+        font-weight: 600;
+    }
+
+    .report-section-title {
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+        color: #9fb1e4;
+        margin-bottom: 0.4rem;
+    }
+
+    .report-soft-text {
+        color: #aeb9d7;
+        line-height: 1.6;
+    }
+
+    .report-ai-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .report-ai-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at top right, rgba(137, 150, 255, 0.16), transparent 34%),
+            radial-gradient(circle at bottom left, rgba(75, 125, 230, 0.12), transparent 36%);
+        pointer-events: none;
+    }
+
+    .report-layer {
+        position: relative;
+        z-index: 1;
+    }
+
+    .report-chart-wrap {
+        height: 290px;
+        position: relative;
+    }
+
+    .report-table td,
+    .report-table th {
+        white-space: nowrap;
+    }
+
+    @media (max-width: 1199px) {
+        .report-card-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .report-hero {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 575px) {
+        .report-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="report-hero">
+        <div class="card section-card shieldx-glass-card mb-0">
+            <div class="card-body p-4">
+                <div class="report-section-title">Security Reporting</div>
+                <h2 class="fw-bold mb-2">System Security Posture Report</h2>
+                <p class="report-soft-text mb-4">
+                    This report summarises password risks, MFA adoption, failed login activity,
+                    vault security, attack simulator usage, and breach-related indicators.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary">Password Risk</span>
+                    <span class="badge bg-success">MFA Monitoring</span>
+                    <span class="badge bg-warning text-dark">Attack Activity</span>
+                    <span class="badge bg-danger">Breach Indicators</span>
+                    <span class="badge bg-dark">AI Summary</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card section-card shieldx-glass-card mb-0">
+            <div class="card-body d-flex justify-content-center align-items-center flex-column">
+                <div class="report-risk-circle mb-3">
+                    <div class="report-risk-inner">
+                        <div class="report-risk-number">{{ risk_score }}%</div>
+                        <div class="report-risk-label">Risk Score</div>
+                    </div>
+                </div>
+
+                <span class="badge bg-{{ risk_color }}">{{ risk_level }} Risk</span>
+            </div>
         </div>
     </div>
 
-    <!-- Summary badges -->
-    <div class="mb-4">
-        <span class="badge bg-primary me-2 p-2">Total Users: {{ total_users | default(0) }}</span>
-        <span class="badge bg-warning text-dark me-2 p-2">Without MFA: {{ users_without_mfa_count | default(0) }}</span>
-        <span class="badge bg-danger me-2 p-2">Failed Logins: {{ failed_login_logs | default([], true) | length }}</span>
-        <span class="badge bg-success p-2">Password Checks: {{ password_check_logs | default([], true) | length }}</span>
+    <div class="report-card-grid">
+        <div class="report-mini-card">
+            <div class="report-icon"><i class="fas fa-users"></i></div>
+            <div class="report-value">{{ total_users }}</div>
+            <div class="report-label">Total Users</div>
+        </div>
+
+        <div class="report-mini-card">
+            <div class="report-icon"><i class="fas fa-mobile-screen-button"></i></div>
+            <div class="report-value">{{ mfa_enabled_users }}</div>
+            <div class="report-label">MFA Enabled</div>
+        </div>
+
+        <div class="report-mini-card">
+            <div class="report-icon"><i class="fas fa-lock-open"></i></div>
+            <div class="report-value">{{ weak_passwords }}</div>
+            <div class="report-label">Weak / Reused Items</div>
+        </div>
+
+        <div class="report-mini-card">
+            <div class="report-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="report-value">{{ breach_match_count }}</div>
+            <div class="report-label">Breach Matches</div>
+        </div>
     </div>
 
-    <div class="row">
-        <!-- Users without MFA -->
-        <div class="col-lg-12 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Users without MFA</h5>
-                    <span class="badge bg-warning text-dark">{{ users_without_mfa_list | default([], true) | length }}</span>
+    {% if ai_report %}
+    <div class="card section-card shieldx-glass-card report-ai-card mb-4">
+        <div class="card-body p-4 report-layer">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <div class="report-section-title">AI Security Advisor</div>
+                    <h4 class="fw-bold mb-2">
+                        <i class="fas fa-robot me-2"></i>Gemini Security Summary
+                    </h4>
                 </div>
+
+                <span class="badge {% if ai_report.source == 'gemini' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                    {{ ai_report.source|upper }}
+                </span>
+            </div>
+
+            <p class="report-soft-text mt-3 mb-0">
+                {{ ai_report.advice }}
+            </p>
+
+            {% if ai_report.error %}
+                <small class="text-muted d-block mt-3">
+                    Note: {{ ai_report.error }}
+                </small>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card section-card shieldx-glass-card h-100">
+                <div class="card-header">
+                    <div class="report-section-title">Visual Analytics</div>
+                    <h5 class="fw-bold mb-0">Security Metrics Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="report-chart-wrap">
+                        <canvas id="securityBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card section-card shieldx-glass-card h-100">
+                <div class="card-header">
+                    <div class="report-section-title">Password Health</div>
+                    <h5 class="fw-bold mb-0">Vault Risk Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="report-chart-wrap">
+                        <canvas id="vaultDonutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card section-card shieldx-glass-card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="report-section-title">MFA Compliance</div>
+                        <h5 class="fw-bold mb-0">Users Without MFA</h5>
+                    </div>
+                    <span class="badge bg-warning text-dark">{{ users_without_mfa_count }}</span>
+                </div>
+
                 <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light">
+                    <table class="table table-bordered table-hover report-table">
+                        <thead>
                             <tr>
                                 <th>#</th>
                                 <th>Username</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if users_without_mfa_list %}
-                                {% for user in users_without_mfa_list %}
+                            {% if users_without_mfa %}
+                                {% for user in users_without_mfa %}
                                 <tr>
                                     <td>{{ loop.index }}</td>
-                                    <td>{{ user.username }}</td>
+                                    <td><strong>{{ user.username }}</strong></td>
                                     <td>{{ user.email }}</td>
-                                    <td>
-                                        <span class="badge bg-secondary">{{ user.role }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning text-dark">MFA Disabled</span>
-                                    </td>
+                                    <td><span class="badge bg-secondary">{{ user.role|upper }}</span></td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">No users without MFA found.</td>
+                                    <td colspan="4" class="text-center text-muted py-4">All users have MFA enabled.</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -63,104 +310,39 @@
             </div>
         </div>
 
-        <!-- Failed login logs -->
-        <div class="col-lg-12 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Failed Login Logs</h5>
-                    <span class="badge bg-danger">{{ failed_login_logs | default([], true) | length }}</span>
+        <div class="col-lg-6">
+            <div class="card section-card shieldx-glass-card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="report-section-title">Access Monitoring</div>
+                        <h5 class="fw-bold mb-0">Failed Login Events</h5>
+                    </div>
+                    <span class="badge bg-danger">{{ failed_login_count }}</span>
                 </div>
+
                 <div class="card-body table-responsive">
-                    <table class="table table-striped table-hover align-middle">
-                        <thead class="table-light">
+                    <table class="table table-bordered table-hover report-table">
+                        <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Username</th>
                                 <th>Time</th>
-                                <th>IP Address</th>
-                                <th>Reason</th>
-                                <th>Status</th>
+                                <th>User ID</th>
+                                <th>Action</th>
+                                <th>IP</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% if failed_login_logs %}
                                 {% for log in failed_login_logs %}
                                 <tr>
-                                    <td>{{ loop.index }}</td>
-                                    <td>{{ log.username }}</td>
-                                    <td>{{ log.time }}</td>
-                                    <td>{{ log.ip_address }}</td>
-                                    <td>{{ log.reason }}</td>
-                                    <td><span class="badge bg-danger">Failed</span></td>
+                                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ log.user_id if log.user_id else 'N/A' }}</td>
+                                    <td><span class="badge bg-danger">{{ log.action }}</span></td>
+                                    <td>{{ log.ip_address or 'N/A' }}</td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">No failed login logs available.</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Password check logs -->
-        <div class="col-lg-12 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Password Check Logs</h5>
-                    <span class="badge bg-success">{{ password_check_logs | default([], true) | length }}</span>
-                </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Username</th>
-                                <th>Check Time</th>
-                                <th>Strength</th>
-                                <th>Compromised</th>
-                                <th>MFA Status</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if password_check_logs %}
-                                {% for log in password_check_logs %}
-                                <tr>
-                                    <td>{{ loop.index }}</td>
-                                    <td>{{ log.username }}</td>
-                                    <td>{{ log.check_time }}</td>
-                                    <td>
-                                        {% if log.strength == 'Strong' %}
-                                            <span class="badge bg-success">Strong</span>
-                                        {% elif log.strength == 'Medium' %}
-                                            <span class="badge bg-warning text-dark">Medium</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Weak</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if log.compromised %}
-                                            <span class="badge bg-danger">Yes</span>
-                                        {% else %}
-                                            <span class="badge bg-success">No</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if log.mfa_enabled %}
-                                            <span class="badge bg-success">Enabled</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Disabled</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ log.notes }}</td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">No password check logs found.</td>
+                                    <td colspan="4" class="text-center text-muted py-4">No failed login activity recorded.</td>
                                 </tr>
                             {% endif %}
                         </tbody>
@@ -170,5 +352,187 @@
         </div>
     </div>
 
+    <div class="card section-card shieldx-glass-card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <div class="report-section-title">Password Security</div>
+                <h5 class="fw-bold mb-0">Vault Password Risk Report</h5>
+            </div>
+            <span class="badge bg-primary">{{ total_vault_items }} Items</span>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover report-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Label</th>
+                        <th>Mode</th>
+                        <th>Strength</th>
+                        <th>Score</th>
+                        <th>Reuse</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if password_rows %}
+                        {% for row in password_rows %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td><strong>{{ row.username }}</strong></td>
+                            <td>{{ row.email }}</td>
+                            <td>{{ row.label }}</td>
+                            <td><span class="badge bg-dark">{{ row.mode|upper }}</span></td>
+                            <td>{{ row.strength }}</td>
+                            <td>{{ row.score if row.score is not none else 'N/A' }}</td>
+                            <td>
+                                {% if row.is_reused %}
+                                    <span class="badge bg-warning text-dark">Reused {{ row.reuse_count }}x</span>
+                                {% else %}
+                                    <span class="badge bg-success">Unique</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.risk_status == 'Review' %}
+                                    <span class="badge bg-danger">Review</span>
+                                {% else %}
+                                    <span class="badge bg-success">Secure</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">No vault password records found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card section-card shieldx-glass-card">
+        <div class="card-header">
+            <div class="report-section-title">Audit Trail</div>
+            <h5 class="fw-bold mb-0">Recent Security Activity</h5>
+        </div>
+
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover report-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User ID</th>
+                        <th>Action</th>
+                        <th>Detail</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_logs %}
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ log.user_id if log.user_id else 'N/A' }}</td>
+                            <td><span class="badge bg-dark">{{ log.action }}</span></td>
+                            <td>{{ log.detail }}</td>
+                            <td>{{ log.ip_address or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No audit activity recorded.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const barCtx = document.getElementById("securityBarChart");
+    const donutCtx = document.getElementById("vaultDonutChart");
+
+    if (barCtx) {
+        new Chart(barCtx, {
+            type: "bar",
+            data: {
+                labels: ["Users", "MFA Enabled", "No MFA", "Weak/Reused", "Failed Logins", "Breach Matches", "Attack Sims"],
+                datasets: [{
+                    label: "Security Count",
+                    data: [
+                        {{ total_users }},
+                        {{ mfa_enabled_users }},
+                        {{ users_without_mfa_count }},
+                        {{ weak_passwords }},
+                        {{ failed_login_count }},
+                        {{ breach_match_count }},
+                        {{ attack_simulation_count }}
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: "#dce6ff" }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "#aeb9d7" },
+                        grid: { color: "rgba(255,255,255,0.06)" }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: "#aeb9d7" },
+                        grid: { color: "rgba(255,255,255,0.06)" }
+                    }
+                }
+            }
+        });
+    }
+
+    if (donutCtx) {
+        new Chart(donutCtx, {
+            type: "doughnut",
+            data: {
+                labels: ["Secure", "Weak/Reused", "Reused"],
+                datasets: [{
+                    data: [
+                        {{ secure_passwords }},
+                        {{ weak_passwords }},
+                        {{ reused_passwords }}
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            color: "#dce6ff",
+                            padding: 18
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
