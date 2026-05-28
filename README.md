@@ -271,10 +271,9 @@ The Gemini LLM integration operates only on derived security metadata rather tha
 # 👨‍💻 Developed By
 
 Noshin Tabassum Thia
-
-Bachelor of Software Engineering
-Cyber Security & System Administration
-University of Canberra
+Nitin Mehta
+Master of Information Technology
+CIHE Australia
 
 ---
 
